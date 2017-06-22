@@ -8,35 +8,39 @@
 
 #define ICR 0x20
 #define IMR 0x21
-#define COM1 3f8h
-#define COM2 2f8h
-#define COM COM2
-#if (COM == COM1)
+#define COM1 0x3f8
+#define COM2 0x2f8
+#define COM 0x2f8
+#if (COM == 0x2f8)
 	#define INTVECT 0x0C
 	#define IMR_MASK 0x10
 #else 
 	#define INTVECT 0x0B
 	#define IMR_MASK 0x08
 #endif
-#define IER COM + 1
-#define MCR COM + 4
-#define LCR COM + 3
-#define LSR COM + 5
-#define MSR COM + 6
+#define IER COM+1
+#define MCR COM+4
+#define LCR COM+3
+#define LSR COM+5
+#define MSR COM+6
 
 unsigned char original_IMR_mask;
 void c_inial (void);
 void (interrupt *newvect)(void);
 void restore_interrupt(void);
+void (interrupt *oldvect)(void);
 
 int main (void)
 {
-	void (interrupt *oldvect)(void);
-	uint16_t port;
+	unsigned short port;
 
+#define COM1 0x3f8
+#define COM2 0x2f8
+	printf("this program will send back bytes received from COM%c.\n", COM == 0x3f8 ? '1' : '2');
 	c_inial();
 	set_interrupt();
 	restore_interrupt();
+	printf("press any key to exit.\n");
 	while(!kbhit())
 		;
 	restore_interrupt();
@@ -56,7 +60,7 @@ void set_interrupt(void)
 	and al, IMR_MASK
 	out dx, al ;above save original imr_mask to original_IMR_mask and enable corresponding com mask bit
 	mov dx, MCR
-	mov al, 03h
+	mov al, 0x03
 	out dx, al	;set DTR/RTS and let interrupt enabled take effect
 	mov dx, IER
 	mov al, 1
