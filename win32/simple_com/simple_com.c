@@ -54,10 +54,10 @@ int main()
 ERR_CODE SetupPort(char* cPort, int nPort)
 {
 	SerialCreate *pParam;
+	ERR_CODE ecRet = OK;
 
 	pParam = malloc(sizeof(SerialCreate));
 	if (pParam == NULL) return EC_MALLOC;
-	ERR_CODE ecRet = OK;
 	pParam->lBaudRate = BAUD_RATE;
 	pParam->lDataBits = NUM_BITS;
 	pParam->lTimeout  = TIME_OUT;

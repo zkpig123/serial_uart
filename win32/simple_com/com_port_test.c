@@ -79,7 +79,7 @@ ERR_CODE PortInitialize(LPTSTR lpszPortName, pSerialCreate pCreate)
 		return EC_TIMEOUT_SET;
          }
         if (!EscapeCommFunction(hPort, SETDTR) | !EscapeCommFunction(hPort, SETRTS)){
-		msg("Unable from escapecommfunction to send dtr/rts."0);
+		msg("Unable from escapecommfunction to send dtr/rts.");
 		return EC_ESCAPE_FUNCTION;
 	}
         pCreate->h_Port = hPort;

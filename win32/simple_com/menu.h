@@ -14,15 +14,15 @@ unsigned char     TestPassed;
 unsigned char     PortCreateflg[9];
 char* menuData[] =
 {  
-    {"A   Test Port COM 1\n"},
-    {"B   Test Port COM 2\n"},
-    {"C   Test Port COM 3\n"},
-    {"D   Test Port COM 4\n"},
-    {"E   Test Port COM 5\n"},
-    {"F   Test Port COM 6\n"},
-    {"G   Test Port COM 7\n"},
-    {"H   Test Port COM 8\n"},
-    {"X   EXIT\n\n"}
+    "A   Test Port COM 1\n",
+    "B   Test Port COM 2\n",
+    "C   Test Port COM 3\n",
+    "D   Test Port COM 4\n",
+    "E   Test Port COM 5\n",
+    "F   Test Port COM 6\n",
+    "G   Test Port COM 7\n",
+    "H   Test Port COM 8\n",
+    "X   EXIT\n\n"
 };
 char* menuTitle[] =
-{   {"SERIAL PORT TESTING  - Enter Selection > \n\n"}};
+{   "SERIAL PORT TESTING  - Enter Selection > \n\n"};

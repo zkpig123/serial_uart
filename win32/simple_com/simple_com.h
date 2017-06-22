@@ -14,10 +14,18 @@
 #define MAX_STRING            256
 #define NOPARITY  0
 #define ONESTOPBIT  0
-#define RTS_CONTROL_DISABLE     0x00
-#define RTS_CONTROL_ENABLE      0x01
-#define DTR_CONTROL_DISABLE     0x00
+#ifndef RTS_CONTROL_DISABLE
+	#define RTS_CONTROL_DISABLE     0x00
+#endif
+#ifndef RTS_CONTROL_ENABLE
+	#define RTS_CONTROL_ENABLE      0x01
+#endif
+#ifndef DTR_CONTROL_DISABLE
+	#define DTR_CONTROL_DISABLE     0x00
+#endif
+#ifndef DTR_CONTROL_ENABLE
 #define DTR_CONTROL_ENABLE      0x01
+#endif
 #define   msg(info)   MessageBox(NULL, info, "", MB_OK)
 typedef struct
 {
