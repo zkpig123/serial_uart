@@ -5,115 +5,68 @@
 #include <stdio.h>
 #include <conio.h>
 #include <dos.h>
+#include <process.h>
+#include <stdlib.h>
 
 #define ICR 0x20
 #define IMR 0x21
-#define COM1 0x3f8
-#define COM2 0x2f8
-#define COM 0x2f8
-#if (COM == 0x2f8)
-	#define INTVECT 0x0C
-	#define IMR_MASK 0x10
-#else 
-	#define INTVECT 0x0B
-	#define IMR_MASK 0x08
-#endif
-#define IER COM+1
-#define MCR COM+4
-#define LCR COM+3
-#define LSR COM+5
-#define MSR COM+6
+#define COM 0x3f8 //COM1, 0x2f8 if COM2
 
+#define INTVECT 0x0C //0x0B if COM2
+#define IMR_MASK 0xEF //0xf7 if com2
+
+#define IER 0x3f9
+#define FIFO 0x3fa
+#define LCR 0x3fb
+#define MCR 0x3fc
+#define LSR 0x3fd
+#define MSR 0x3fe
+
+int isr_invoke_nums;
+void (interrupt *oldvect)();
 unsigned char original_IMR_mask;
-void c_inial (void);
-void (interrupt *newvect)(void);
-void restore_interrupt(void);
-void (interrupt *oldvect)(void);
 
-int main (void)
+void (interrupt newvect)()
+{
+	char ch;
+	isr_invoke_nums++;
+	while (1){
+		ch = inportb(LSR);
+		if (ch & 1 == 0) break;
+		ch = inportb(COM);
+		outportb(COM, ch);
+	}
+	outportb(ICR, 0x20);
+}
+
+int main ()
 {
 	unsigned short port;
 
-#define COM1 0x3f8
-#define COM2 0x2f8
+	outportb(IER, 0);
 	printf("this program will send back bytes received from COM%c.\n", COM == 0x3f8 ? '1' : '2');
-	c_inial();
-	set_interrupt();
-	restore_interrupt();
-	printf("press any key to exit.\n");
-	while(!kbhit())
-		;
-	restore_interrupt();
+	oldvect = getvect(INTVECT);
+	if (oldvect){
+		printf("original vector is %p.\n");
+	}else printf("original vector is NULL.\n");
+	setvect(INTVECT, newvect);
+	outportb(LCR, 0x80);
+	outportb(COM, 0x0c);
+	outportb(IER, 0);
+	outportb(LCR, 0x03);
+	outportb(FIFO, 0xC7);
+	outportb(MCR, 0x0B);
+	original_IMR_mask = inportb(IMR);
+	outportb(IMR, original_IMR_mask & IMR_MASK);
+	outportb(IER, 0x01);
+	printf("press esc to exit.\n");
+	while(1){
+		if (getch() == 27) break;
+	}
+	outportb(IER, 0);
+	outportb(IMR, original_IMR_mask);
+	setvect(INTVECT, oldvect);
+	printf("ISR invoked %d times.\n", isr_invoke_nums);
 
 	return 0;
-}
-
-void set_interrupt(void)
-{
-	old_vect = getvect(INTVECT);
-	setvect(INTVECT, newvect);
-	_asm
-	{
-	mov dx, IMR
-	in dx, al
-	mov original_IMR_mask, al ;save original IMR_MASK
-	and al, IMR_MASK
-	out dx, al ;above save original imr_mask to original_IMR_mask and enable corresponding com mask bit
-	mov dx, MCR
-	mov al, 0x03
-	out dx, al	;set DTR/RTS and let interrupt enabled take effect
-	mov dx, IER
-	mov al, 1
-	out dx, al	;interrupt enabled
-	}
-}
-
-void restore_interrupt(void)
-{
-	_asm
-	{
-	mov dx, IMR
-	mov al, original_IMR_mask
-	out dx, al
-	}
-	setvect(INTVECT, oldvect);
-}
-
-void (interrupt *newvect)(void)
-{
-	unsigned char ch;
-
-	_asm
-	{
-	mov dx, LSR
-	in dx, al
-	test al, 1 //RxRDY
-	jz done
-	mov dx, COM
-	in dx, al
-	out dx, al
-	done:
-	mov dx, ICR
-	mov al, 0x20
-	out dx, al
-	}
-}
-
-void c_inial (void)
-{
-	_asm
-	{
-	mov dx, LCR
-	mov al, 80h
-	out dx, al
-	mov dx, COM
-	mov al, 0ch
-	out dx, al
-	mov dx, IER
-	mov al, 0
-	out dx, al	//above set baud rate
-	mov dx, LCR
-	mov al, 0bh
-	out dx, al	//set no parity, 8 bits, 1 stop bit
-	}
 }
