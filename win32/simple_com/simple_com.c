@@ -33,7 +33,7 @@ int main()
 		select = FALSE;
 		else
 		{
-			ecRet = SetupPort(comPort, (int)cPort);
+			ecRet = SetupPort(comPort, (int)cPort - 'A');
 			if (ecRet)
 			{
 				select = FALSE;
@@ -49,7 +49,6 @@ int main()
 			printf("\n**** %s TEST PASSED ***\n", comPort);
 		}
 	}
-	getchar();
 }
 
 ERR_CODE SetupPort(char* cPort, int nPort)
