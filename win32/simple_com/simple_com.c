@@ -33,7 +33,7 @@ int main()
 		select = FALSE;
 		else
 		{
-			ecRet = SetupPort(comPort, (int)cPort - 'A');
+			ecRet = SetupPort(comPort, (int)cPort);
 			if (ecRet)
 			{
 				select = FALSE;
@@ -49,6 +49,7 @@ int main()
 			printf("\n**** %s TEST PASSED ***\n", comPort);
 		}
 	}
+	getchar();
 }
 
 ERR_CODE SetupPort(char* cPort, int nPort)
@@ -96,6 +97,7 @@ ERR_CODE TestPort(char* cPort, BOOL display)
 		ecRet = PortWrite(hPort, sByte, numByte);
 		if (ecRet)
 		{
+			free(comPort);
 			printf("PortWrite() is failed\n");
 			TestPassed = FALSE;
 			CloseHandle(hPort);
@@ -106,6 +108,7 @@ ERR_CODE TestPort(char* cPort, BOOL display)
 		ecRet = PortRead(comPort);
 		if (ecRet)
 		{
+			free(comPort);
 			printf("PortRead() is failed\n");
 			TestPassed = FALSE;
 			CloseHandle(hPort);
@@ -115,6 +118,7 @@ ERR_CODE TestPort(char* cPort, BOOL display)
 		printf("%s Port Received: = %c\n", cPort, comPort->bByte);
 		if (sByte != comPort->bByte)
 		{
+			free(comPort);
 			TestPassed = FALSE;
 			return EC_TEST_FAIL;
 		}

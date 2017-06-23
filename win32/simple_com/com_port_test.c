@@ -57,6 +57,7 @@ ERR_CODE PortInitialize(LPTSTR lpszPortName, pSerialCreate pCreate)
        // Configure the port according to the specifications of the DCB structure.
        if (!SetCommState (hPort, &PortDCB))
        {
+		CloseHandle(hPort);
 		// Could not create the read thread.
 		dwError = GetLastError();
 		msg("Unable to configure the serial port");
@@ -73,12 +74,14 @@ ERR_CODE PortInitialize(LPTSTR lpszPortName, pSerialCreate pCreate)
          // Set the time-out parameters for all read and write operations on the port.
          if (!SetCommTimeouts (hPort, &CommTimeouts))
          {
+		CloseHandle(hPort);
 		// Could not create the read thread.
 		dwError = GetLastError();
 		msg("Unable to set the time-out parameters");
 		return EC_TIMEOUT_SET;
          }
         if (!EscapeCommFunction(hPort, SETDTR) | !EscapeCommFunction(hPort, SETRTS)){
+		CloseHandle(hPort);
 		msg("Unable from escapecommfunction to send dtr/rts.");
 		return EC_ESCAPE_FUNCTION;
 	}
